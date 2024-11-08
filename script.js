@@ -1,3 +1,4 @@
+const API_URL = 'https://jsonplaceholder.typicode.com/posts'; // Mock API URL
 const quotes = [];
 
 // Load quotes from local storage
@@ -36,9 +37,6 @@ function showRandomQuote() {
     const quote = quotes[randomIndex];
     const quoteDisplay = document.getElementById('quoteDisplay');
     quoteDisplay.innerHTML = `<p>${quote.text}</p><p><em>${quote.category}</em></p>`;
-    
-    // Store the last viewed quote in session storage
-    sessionStorage.setItem('lastViewedQuote', JSON.stringify(quote));
 }
 
 // Add a new quote
@@ -59,6 +57,37 @@ function addQuote() {
     }
 }
 
+// Fetch quotes from the server
+async function fetchQuotesFromServer() {
+    try {
+        const response = await fetch(API_URL);
+        const serverQuotes = await response.json();
+        syncQuotes(serverQuotes);
+    } catch (error) {
+        console.error('Error fetching quotes:', error);
+    }
+}
+
+// Sync quotes with local storage
+function syncQuotes(serverQuotes) {
+    const localQuotes = JSON.parse(localStorage.getItem('quotes')) || [];
+    
+    // Simple conflict resolution: server data takes precedence
+    const updatedQuotes = serverQuotes.map(serverQuote => {
+        const existingQuote = localQuotes.find(localQuote => localQuote.id === serverQuote.id);
+        return existingQuote ? { ...existingQuote, ...serverQuote } : serverQuote;
+    });
+
+    // Save updated quotes to local storage
+    localStorage.setItem('quotes', JSON.stringify(updatedQuotes));
+    document.getElementById('notification').innerText = 'Quotes updated from server.';
+    populateCategories(); // Refresh categories if needed
+    filterQuotes(); // Refresh displayed quotes
+}
+
+// Call fetchQuotesFromServer periodically
+setInterval(fetchQuotesFromServer, 10000); // Fetch every 10 seconds
+
 // Filter quotes based on selected category
 function filterQuotes() {
     const selectedCategory = document.getElementById('categoryFilter').value;
@@ -75,34 +104,6 @@ function filterQuotes() {
 
     // Save the last selected category to local storage
     localStorage.setItem('lastSelectedCategory', selectedCategory);
-}
-
-// Export quotes to a JSON file
-document.getElementById('exportQuotes').addEventListener('click', function() {
-    const dataStr = JSON.stringify(quotes);
-    const blob = new Blob([dataStr], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'quotes.json';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-});
-
-// Import quotes from a JSON file
-function importFromJsonFile(event) {
-    const fileReader = new FileReader();
-    fileReader.onload = function(event) {
-        const importedQuotes = JSON.parse(event.target.result);
-        quotes.push(...importedQuotes);
-        saveQuotes(); // Save to local storage
-        alert('Quotes imported successfully!');
-        populateCategories(); // Update categories in the dropdown
-        filterQuotes(); // Refresh displayed quotes
-    };
-    fileReader.readAsText(event.target.files);
 }
 
 // Load last selected category
