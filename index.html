@@ -1,31 +1,87 @@
-\<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dynamic Quote Generator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        #quoteDisplay {
+            margin: 20px;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: #fff;
+            width: 300px;
+            text-align: center;
+        }
+
+        button {
+            margin: 5px;
+            padding: 10px 15px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        input {
+            margin: 5px;
+            padding: 10px;
+            width: 200px;
+        }
+    </style>
 </head>
 <body>
     <h1>Dynamic Quote Generator</h1>
-    <div id="quoteDisplay"></div>
+    <div id="quoteDisplay">"Click the button to see a quote!"</div>
     <button id="newQuote">Show New Quote</button>
-    
     <div>
         <input id="newQuoteText" type="text" placeholder="Enter a new quote" />
         <input id="newQuoteCategory" type="text" placeholder="Enter quote category" />
-        <button id="addQuoteButton">Add Quote</button>
+        <button onclick="addQuote()">Add Quote</button>
     </div>
-    
-    <select id="categoryFilter" onchange="filterQuotes()">
-        <option value="all">All Categories</option>
-        <!-- Dynamically populated categories will go here -->
-    </select>
-    
-    <div id="notification" style="color: red;"></div> <!-- Notification area -->
-    
-    <button id="exportQuotes">Export Quotes</button>
-    <input type="file" id="importFile" accept=".json" onchange="importFromJsonFile(event)" />
-    
-    <script src="script.js"></script>
+    <script>
+        let quotes = [
+            { text: "The only limit to our realization of tomorrow is our doubts of today.", category: "Motivation" },
+            { text: "Life is 10% what happens to us and 90% how we react to it.", category: "Life" },
+            { text: "The best way to predict the future is to create it.", category: "Inspiration" }
+        ];
+
+        function showRandomQuote() {
+            const randomIndex = Math.floor(Math.random() * quotes.length);
+            const quoteDisplay = document.getElementById('quoteDisplay');
+            quoteDisplay.textContent = `${quotes[randomIndex].text} - ${quotes[randomIndex].category}`;
+        }
+
+        document.getElementById('newQuote').addEventListener('click', showRandomQuote);
+
+        function addQuote() {
+            const newQuoteText = document.getElementById('newQuoteText').value;
+            const newQuoteCategory = document.getElementById('newQuoteCategory').value;
+
+            if (newQuoteText && newQuoteCategory) {
+                quotes.push({ text: newQuoteText, category: newQuoteCategory });
+                document.getElementById('newQuoteText').value = '';
+                document.getElementById('newQuoteCategory').value = '';
+                showRandomQuote(); // Optionally show the new quote immediately
+            }
+        }
+
+        // Show an initial quote when the page loads
+        window.onload = showRandomQuote;
+    </script>
 </body>
 </html>
