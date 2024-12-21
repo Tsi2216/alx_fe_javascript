@@ -9,6 +9,32 @@ let quotes = [
     { text: "Believe you can and you're halfway there.", category: "Motivation" }
 ];
 
+// Function to fetch quotes from JSONPlaceholder
+async function fetchQuotes() {
+    try {
+        const response = await fetch('https://jsonplaceholder.typicode.com/posts');
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        const data = await response.json();
+        // Update local quotes array with fetched data
+        quotes = data.map(post => ({
+            text: post.title, // Use post title as the quote text
+            category: 'General' // Assign a default category
+        }));
+        console.log('Fetched quotes:', quotes); // For demonstration
+        showRandomQuote(); // Show a random quote after fetching
+    } catch (error) {
+        console.error('There has been a problem with your fetch operation:', error);
+    }
+}
+
+// Call fetchQuotes immediately to load quotes on startup
+fetchQuotes();
+
+// Set up periodic fetching every 10 seconds
+setInterval(fetchQuotes, 10000);
+
 function saveQuotes() {
     localStorage.setItem('quotes', JSON.stringify(quotes));
 }
@@ -85,6 +111,31 @@ function importFromJsonFile(event) {
     };
     fileReader.readAsText(event.target.files);
 }
+
+// Syncing logic
+async function syncQuotes() {
+    const newQuotes = await fetchQuotes(); // Fetch new quotes from the server
+    if (newQuotes.length > 0) {
+        // Simple conflict resolution: replace local quotes with server data
+        quotes = newQuotes; // Replace local quotes with server data
+        saveQuotes(); // Save updated quotes to local storage
+        notifyUser("Quotes updated from server."); // Notify user of update
+    }
+}
+
+// Notify user of updates
+function notifyUser(message) {
+    const notification = document.createElement('div');
+    notification.textContent = message;
+    document.body.appendChild(notification);
+    setTimeout(() => notification.remove(), 3000); // Remove notification after 3 seconds
+}
+
+// Call syncQuotes immediately to load quotes on startup
+syncQuotes();
+
+// Set up periodic syncing every 10 seconds
+setInterval(syncQuotes, 10000);
 
 window.onload = function() {
     populateCategories(); // Populate categories on load
