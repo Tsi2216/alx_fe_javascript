@@ -109,7 +109,7 @@ function importFromJsonFile(event) {
         alert('Quotes imported successfully!');
         showRandomQuote();
     };
-    fileReader.readAsText(event.target.files);
+    fileReader.readAsText(event.target.files[0]);
 }
 
 // Syncing logic
@@ -131,15 +131,49 @@ function notifyUser(message) {
     setTimeout(() => notification.remove(), 3000); // Remove notification after 3 seconds
 }
 
+// Create the "Add Quote" form
+function createAddQuoteForm() {
+    const formContainer = document.createElement('div');
+    formContainer.id = 'addQuoteForm';
+
+    const quoteInput = document.createElement('input');
+    quoteInput.type = 'text';
+    quoteInput.id = 'newQuoteText';
+    quoteInput.placeholder = 'Enter your quote here...';
+    
+    const categoryInput = document.createElement('select');
+    categoryInput.id = 'newQuoteCategory';
+    const categories = [...new Set(quotes.map(quote => quote.category))]; // Get unique categories
+
+    categories.forEach(category => {
+        const option = document.createElement('option');
+        option.value = category;
+        option.textContent = category;
+        categoryInput.appendChild(option);
+    });
+
+    const addButton = document.createElement('button');
+    addButton.textContent = 'Add Quote';
+    addButton.onclick = addQuote; // Use existing addQuote function
+
+    formContainer.appendChild(quoteInput);
+    formContainer.appendChild(categoryInput);
+    formContainer.appendChild(addButton);
+
+    document.body.appendChild(formContainer); // Add the form to the body
+}
+
+// Call createAddQuoteForm to display the form on page load
+window.onload = function() {
+    populateCategories(); // Populate categories on load
+    createAddQuoteForm(); // Create and display the add quote form
+    const lastCategory = localStorage.getItem('lastCategory') || 'all';
+    document.getElementById('categoryFilter').value = lastCategory;
+    filterQuotes(); // Show quotes based on last selected category
+};
+
 // Call syncQuotes immediately to load quotes on startup
 syncQuotes();
 
 // Set up periodic syncing every 10 seconds
 setInterval(syncQuotes, 10000);
-
-window.onload = function() {
-    populateCategories(); // Populate categories on load
-    const lastCategory = localStorage.getItem('lastCategory') || 'all';
-    document.getElementById('categoryFilter').value = lastCategory;
-    filterQuotes(); // Show quotes based on last selected category
-};
