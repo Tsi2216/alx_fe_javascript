@@ -9,13 +9,21 @@ let quotes = [
     { text: "Believe you can and you're halfway there.", category: "Motivation" }
 ];
 
-// Function to fetch quotes from the server
+// Function to fetch quotes from the server with POST method
 async function fetchQuotesFromServer() {
     try {
-        const response = await fetch('https://jsonplaceholder.typicode.com/posts');
+        const response = await fetch('https://jsonplaceholder.typicode.com/posts', {
+            method: 'POST', // Specify the method
+            headers: {
+                'Content-Type': 'application/json' // Specify the content type
+            },
+            body: JSON.stringify({ quotes }) // Sending the quotes array as the body
+        });
+
         if (!response.ok) {
             throw new Error('Network response was not ok');
         }
+
         const data = await response.json();
         // Update local quotes array with fetched data
         quotes = data.map(post => ({
