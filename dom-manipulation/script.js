@@ -9,8 +9,8 @@ let quotes = [
     { text: "Believe you can and you're halfway there.", category: "Motivation" }
 ];
 
-// Function to fetch quotes from JSONPlaceholder
-async function fetchQuotes() {
+// Function to fetch quotes from the server
+async function fetchQuotesFromServer() {
     try {
         const response = await fetch('https://jsonplaceholder.typicode.com/posts');
         if (!response.ok) {
@@ -22,18 +22,18 @@ async function fetchQuotes() {
             text: post.title, // Use post title as the quote text
             category: 'General' // Assign a default category
         }));
-        console.log('Fetched quotes:', quotes); // For demonstration
+        console.log('Fetched quotes from server:', quotes); // For demonstration
         showRandomQuote(); // Show a random quote after fetching
     } catch (error) {
         console.error('There has been a problem with your fetch operation:', error);
     }
 }
 
-// Call fetchQuotes immediately to load quotes on startup
-fetchQuotes();
+// Call fetchQuotesFromServer immediately to load quotes on startup
+fetchQuotesFromServer();
 
 // Set up periodic fetching every 10 seconds
-setInterval(fetchQuotes, 10000);
+setInterval(fetchQuotesFromServer, 10000);
 
 function saveQuotes() {
     localStorage.setItem('quotes', JSON.stringify(quotes));
@@ -114,7 +114,7 @@ function importFromJsonFile(event) {
 
 // Syncing logic
 async function syncQuotes() {
-    const newQuotes = await fetchQuotes(); // Fetch new quotes from the server
+    const newQuotes = await fetchQuotesFromServer(); // Fetch new quotes from the server
     if (newQuotes.length > 0) {
         // Simple conflict resolution: replace local quotes with server data
         quotes = newQuotes; // Replace local quotes with server data
