@@ -32,6 +32,7 @@ async function fetchQuotesFromServer() {
         }));
         console.log('Fetched quotes from server:', quotes); // For demonstration
         showRandomQuote(); // Show a random quote after fetching
+        notifyUser("Quotes synced with server!"); // Notify user of sync
     } catch (error) {
         console.error('There has been a problem with your fetch operation:', error);
     }
@@ -127,7 +128,7 @@ async function syncQuotes() {
         // Simple conflict resolution: replace local quotes with server data
         quotes = newQuotes; // Replace local quotes with server data
         saveQuotes(); // Save updated quotes to local storage
-        notifyUser("Quotes updated from server."); // Notify user of update
+        notifyUser("Quotes synced with server!"); // Notify user of update
     }
 }
 
